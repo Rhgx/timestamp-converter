@@ -60,7 +60,7 @@ test('all seven Discord styles and Unix seconds copy the exact value', () => {
 });
 
 test('invalid dates and unknown timezone suffixes are rejected', () => {
-  for (const input of ['', 'not a date', '25:00 UTC', '14:30 NOPE', 'Jan 1 2024 rubbish', '02/30/2024', '2025-02-30', '14:30 UTC+99:00']) {
+  for (const input of ['', 'not a date', 'constructor', '__proto__', '25:00 UTC', '14:30 NOPE', 'Jan 1 2024 rubbish', '02/30/2024', '2025-02-30', '14:30 UTC+99:00']) {
     assert.equal(parseDateTime(input, timezoneData), null, input);
   }
 });

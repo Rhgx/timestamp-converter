@@ -311,7 +311,7 @@ function parseDiscordFormat(inputStr: string) {
 
 function parseRelativeKeyword(inputStr: string) {
   const lower = inputStr.toLowerCase().trim();
-  if (RELATIVE_KEYWORDS[lower]) {
+  if (Object.hasOwn(RELATIVE_KEYWORDS, lower)) {
     return RELATIVE_KEYWORDS[lower]();
   }
   return null;
