@@ -9,9 +9,10 @@
     "typecheck": "tsc --noEmit",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "tsx --test src/converter.test.ts"
+    "test": "tsx --test tests/*.test.ts"
   },
   "dependencies": {
+    "lucide-react": "^1.41.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "torph": "0.1.3"

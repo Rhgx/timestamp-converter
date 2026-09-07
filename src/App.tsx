@@ -1,128 +1,62 @@
-import { useEffect, useRef, useState } from 'react';
-import type { FormEvent } from 'react';
-import { TextMorph } from 'torph/react';
-import { timezoneData } from './data';
-import { formatDateTime, getRelativeTime } from './formatter';
-import { parseDateTime } from './parser';
-
-const formats = [
-  { key: 'unixTimestamp', label: 'Unix timestamp', style: null },
-  { key: 'shortTime', label: 'Short time', style: 't' },
-  { key: 'longTime', label: 'Long time', style: 'T' },
-  { key: 'shortDate', label: 'Short date', style: 'd' },
-  { key: 'longDate', label: 'Long date', style: 'D' },
-  { key: 'longDateShortTime', label: 'Date & time', style: 'f' },
-  { key: 'longDateDayShortTime', label: 'Date, day & time', style: 'F' },
-  { key: 'relative', label: 'Relative', style: 'R' },
-] as const;
-
-function ResultRow({ label, syntax, display, copy }: {
-  label: string;
-  syntax: string | null;
-  display: string;
-  copy: string;
-}) {
-  const [copied, setCopied] = useState(false);
-  const [copyError, setCopyError] = useState(false);
-  const resetTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const currentCopy = useRef(copy);
-  currentCopy.current = copy;
-
-  useEffect(() => {
-    setCopied(false);
-    setCopyError(false);
-    return () => clearTimeout(resetTimer.current);
-  }, [copy]);
-
-  async function copyResult() {
-    try {
-      await navigator.clipboard.writeText(copy);
-      if (currentCopy.current !== copy) return;
-      setCopied(true);
-      setCopyError(false);
-      clearTimeout(resetTimer.current);
-      resetTimer.current = setTimeout(() => setCopied(false), 1500);
-    } catch {
-      if (currentCopy.current === copy) setCopyError(true);
-    }
-  }
-
-  return (
-    <div className="result-row">
-      <dt className="result-label">
-        {label}
-        {syntax && <code>{syntax}</code>}
-      </dt>
-      <dd className="result-content">
-        <div className="result-value" aria-label={`${label}: ${display}`}>
-          <TextMorph duration={220} scale={false} respectReducedMotion>{display}</TextMorph>
-        </div>
-        <button
-          className={`copy-button${copied ? ' copied' : ''}`}
-          type="button"
-          onClick={copyResult}
-          aria-label={`${copied ? 'Copied' : 'Copy'} ${label.toLowerCase()}`}
-          title={copy}
-        >
-          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-            <path className="copy-icon" d="M7 6V3.75A.75.75 0 0 1 7.75 3h8.5a.75.75 0 0 1 .75.75v8.5a.75.75 0 0 1-.75.75H14" />
-            <rect className="copy-icon" x="3" y="7" width="10" height="10" rx="1" />
-            <path className="check-icon" d="m4 10 4 4 8-8" />
-          </svg>
-          <TextMorph duration={180} scale={false} respectReducedMotion>{copied ? 'Copied!' : 'Copy'}</TextMorph>
-        </button>
-        <span className="sr-only" role="status">{copied ? `${label} copied to clipboard.` : ''}</span>
-        {copyError && <p className="copy-error" role="alert">Couldn't access the clipboard. Copy this text: <code>{copy}</code></p>}
-      </dd>
-    </div>
-  );
-}
-
-function Results({ date }: { date: Date }) {
-  const [relative, setRelative] = useState(() => getRelativeTime(date));
-  const results = formatDateTime(date);
-
-  useEffect(() => {
-    setRelative(getRelativeTime(date));
-    const timer = setInterval(() => setRelative(getRelativeTime(date)), 1000);
-    return () => clearInterval(timer);
-  }, [date]);
-
-  return (
-    <section className="results" aria-labelledby="results-title">
-      <h2 id="results-title">Results</h2>
-      <p className="result-help">Previews use your local timezone. Copy a format to display it in each Discord reader's timezone.</p>
-      <dl>
-        {formats.map(({ key, label, style }) => (
-          <ResultRow key={key} label={label}
-            syntax={style ? `<t:ts:${style}>` : null}
-            display={key === 'relative' ? relative : String(results[key].display)}
-            copy={String(results[key].copy)} />
-        ))}
-      </dl>
-    </section>
-  );
-}
+import { useRef, useState } from "react";
+import { CalendarDays, X } from "lucide-react";
+import type { FormEvent } from "react";
+import { timezoneData } from "./data";
+import { parseDateTime } from "./lib/date-time/parse";
+import { FormatHelp } from "./components/FormatHelp";
+import { Results } from "./components/Results";
 
 export default function App() {
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
+  const [calendarInput, setCalendarInput] = useState("");
   const [date, setDate] = useState<Date | null>(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
+  const [pickerFallback, setPickerFallback] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const calendarRef = useRef<HTMLInputElement>(null);
 
   function convert(value: string) {
-    if (!value.trim()) {
-      setError('Please enter a date/time value.');
-      setDate(null);
+    const trimmed = value.trim();
+    if (!trimmed) {
+      setError("Enter a date or time.");
       return;
     }
-    const parsed = parseDateTime(value, timezoneData);
+    const parsed = parseDateTime(trimmed, timezoneData);
     if (!parsed || Number.isNaN(parsed.getTime())) {
-      setError("Invalid date/time or unknown timezone. Try '14:30 UTC', '2 PM EST', or '2025-05-03T10:00Z'.");
-      setDate(null);
+      setError("Couldn't read that. Check the format or timezone.");
       return;
     }
-    setError('');
+    setInput(trimmed);
+    setError("");
     setDate(parsed);
+  }
+
+  // Picking from the guide is a choice, not a draft: convert it straight away
+  // and hand the input back for editing.
+  function choose(value: string) {
+    convert(value);
+    inputRef.current?.focus();
+  }
+
+  function clear() {
+    setInput("");
+    setError("");
+    setDate(null);
+    setCalendarInput("");
+    inputRef.current?.focus();
+  }
+
+  // The native picker is the whole interaction; if a browser withholds it,
+  // fall back to showing the field itself.
+  function openCalendar() {
+    const element = calendarRef.current;
+    if (!element) return;
+    try {
+      element.showPicker();
+    } catch {
+      setPickerFallback(true);
+      element.focus();
+    }
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -133,25 +67,101 @@ export default function App() {
   return (
     <main>
       <h1>Discord Unix Timestamp Converter</h1>
-      <form onSubmit={submit}>
-        <label htmlFor="date-time">Enter date/time:</label>
-        <input id="date-time" value={input} onChange={event => setInput(event.target.value)}
-          aria-describedby={error ? 'format-help input-error' : 'format-help'}
-          aria-invalid={Boolean(error)} autoComplete="off" spellCheck={false}
-          placeholder="e.g., 14:30 UTC, 2 PM EST, 4.00 @ 10/5/2025 CDT, 2025-05-03T10:00Z" />
-        <p id="format-help" className="format-help">Formats: Unix timestamp, <code>{'<t:ts:F>'}</code>, today/tomorrow/in 3 hours, Jan 1 2024, MM/DD/YYYY, HH:MM [TZ], Time @ D/M/Y</p>
+
+      <div className="input-heading">
+        <label htmlFor="date-time">Enter date/time</label>
+        <FormatHelp onChoose={choose} />
+      </div>
+      <form onSubmit={submit} noValidate>
+        <div className="input-row">
+          <input
+            ref={inputRef}
+            id="date-time"
+            className="main-input"
+            value={input}
+            onChange={(event) => {
+              setInput(event.target.value);
+              setError("");
+            }}
+            aria-describedby={error ? "input-hint input-error" : "input-hint"}
+            aria-invalid={Boolean(error)}
+            autoComplete="off"
+            spellCheck={false}
+            maxLength={500}
+            placeholder="e.g., tomorrow at 3pm, in 1h 30m, next Friday at noon UTC"
+          />
+          <button className="convert-button" type="submit">
+            Convert
+          </button>
+          <div className="calendar-field">
+            <button
+              className="secondary-button icon-button"
+              type="button"
+              onClick={openCalendar}
+              aria-label="Choose date and time from a calendar"
+              title="Choose from calendar"
+            >
+              <CalendarDays size={18} aria-hidden="true" />
+            </button>
+            <label className="sr-only" htmlFor="calendar-input">
+              Local date and time
+            </label>
+            <input
+              ref={calendarRef}
+              id="calendar-input"
+              className={pickerFallback ? "" : "calendar-hidden"}
+              type="datetime-local"
+              value={calendarInput}
+              min="1900-01-01T00:00"
+              max="3000-12-31T23:59"
+              onChange={(event) => {
+                setCalendarInput(event.target.value);
+                if (event.target.value) convert(event.target.value);
+              }}
+            />
+          </div>
+          <button
+            className="secondary-button icon-button"
+            type="button"
+            aria-label="Clear input and results"
+            title="Clear input and results"
+            disabled={!input && !date}
+            onClick={clear}
+          >
+            <X size={18} aria-hidden="true" />
+          </button>
+        </div>
+        <p id="input-hint" className="format-help">
+          Dates without a timezone use your local time.
+        </p>
         <div className="form-actions">
-          <button className="convert-button" type="submit">Convert</button>
-          <div className="examples" aria-label="Example dates">
-            <span>Try</span>
-            {['now', 'tomorrow', 'in 3 hours'].map(example => (
-              <button type="button" key={example} onClick={() => { setInput(example); convert(example); }}>{example}</button>
+          <div className="examples" aria-label="Quick dates">
+            <span className="chip-legend">Quick</span>
+            {["now", "tomorrow", "in 3 hours"].map((example) => (
+              <button
+                type="button"
+                className="chip"
+                key={example}
+                onClick={() => choose(example)}
+              >
+                {example}
+              </button>
             ))}
           </div>
         </div>
       </form>
-      {error && <p id="input-error" className="error" role="alert">{error}</p>}
-      <div className="sr-only" role="status">{date ? `Converted to ${date.toLocaleString()}. Results available below.` : ''}</div>
+      {error && (
+        <p id="input-error" className="error" role="alert">
+          {error}
+        </p>
+      )}
+      <div className="sr-only" role="status">
+        {date
+          ? "Converted to " +
+            date.toLocaleString() +
+            ". Results available below."
+          : ""}
+      </div>
       {date && <Results date={date} />}
     </main>
   );

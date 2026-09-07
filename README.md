@@ -31,7 +31,29 @@ The app runs under `/timestamp-converter/` in development and production. The Pa
 
 Abbreviations retain the original converter's regional mappings. For example, `EST` maps to New York and follows its seasonal offset. Use explicit UTC offsets when a fixed offset is needed. Browser `Intl` supplies timezone and daylight saving rules; the bundled JSON files provide the original abbreviation mappings and fallback offsets.
 
-Previews follow the viewer's locale and timezone. Copy buttons produce Discord markup, except the Unix row, which copies seconds. Relative previews update once per second. Torph handles result and copy-label transitions and respects reduced motion preferences; the result section uses a 200 ms CSS entrance.
+Additional natural language includes `tomorrow at 3pm`, `next Friday at noon`, `day after tomorrow`, `tonight`, `end of month`, and `start of next month`. Durations accept compound and abbreviated units, such as `in 1h 30m`, `two hours ago`, `+45m`, and `in half an hour`. Named dates also accept the day first, or omit the year. Dotted and day-first hyphenated dates use day/month/year; slash dates keep the original month/day/year convention.
+
+Date-only ISO input keeps the original UTC interpretation. Other calendar input defaults to local time. Relative dates use the calendar in the specified timezone. Named dates without a year use the current year, tonight means 20:00, and weeks run Monday to Sunday. A bare weekday means its next occurrence including today; `next` excludes today. Hours count elapsed time, while days and months follow the calendar. Month changes clamp to the last valid day. DST gaps are rejected and repeated times choose the earlier occurrence.
+
+## Interface
+
+The searchable Formats & examples dialog converts selected examples immediately and returns focus to the input for editing. It also shows unsupported inputs with clickable corrections. The native dialog supports Escape, focus containment, and restoring focus. The calendar button beside Convert opens a local date picker and converts the selected date and time.
+
+UTC previews change only the displayed timezone. Show codes displays the exact clipboard content. Copy buttons use Lucide copy/check icons with accessible labels and success announcements. Failed clipboard writes expose the value for manual copying. Invalid conversions show an error and retain the last successful result.
+
+Torph animates result updates, while CSS handles entrances and icon feedback. Both respect reduced motion preferences.
+
+## Code layout
+
+- `src/lib/date-time/parse.ts`: Unix, Discord, ISO, and calendar syntax.
+- `src/lib/date-time/natural.ts`: relative phrases, weekdays, and durations.
+- `src/lib/date-time/calendar.ts`: clock parsing, timezone resolution, and DST validation.
+- `src/lib/date-time/format.ts`: Discord output formats and relative previews.
+- `src/components/`: format guide, result list, and copy controls.
+- `src/data/examples.ts`: grouped examples used by the guide and checked by tests.
+- `tests/date-time.test.ts`: existing format coverage, new language, and calendar edge cases.
+
+The parser uses native Date and Intl APIs. Lucide is the only new runtime dependency for these additions.
 
 ## Origin
 
