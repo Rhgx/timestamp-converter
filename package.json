@@ -13,7 +13,9 @@
   },
   "dependencies": {
     "lucide-react": "^1.41.0",
+    "motion": "^13.2.0",
     "react": "^19.2.8",
+    "react-datepicker": "^9.1.0",
     "react-dom": "^19.2.8",
     "torph": "0.1.3"
   },

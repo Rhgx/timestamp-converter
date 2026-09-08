@@ -1,0 +1,285 @@
+/* Dialog */
+.format-dialog {
+  display: none;
+  padding: 0;
+  width: min(720px, calc(100% - 32px));
+  max-height: min(820px, calc(100dvh - 48px));
+  background: var(--surface);
+  color: inherit;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.format-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Transitions rather than keyframes so the close is animated too: the base
+   rule times the exit, the [open] rule the entrance. */
+@media (prefers-reduced-motion: no-preference) {
+  .format-dialog {
+    opacity: 0;
+    transform: translateY(6px) scale(0.985);
+    transition:
+      opacity 110ms var(--ease-out),
+      transform 110ms var(--ease-out),
+      overlay 110ms allow-discrete,
+      display 110ms allow-discrete;
+  }
+  .format-dialog[open] {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 170ms var(--ease-out),
+      transform 170ms var(--ease-spring),
+      overlay 170ms allow-discrete,
+      display 170ms allow-discrete;
+  }
+  @starting-style {
+    .format-dialog[open] {
+      opacity: 0;
+      transform: translateY(6px) scale(0.985);
+    }
+  }
+  .format-dialog::backdrop {
+    opacity: 0;
+    transition:
+      opacity 110ms var(--ease-out),
+      overlay 110ms allow-discrete,
+      display 110ms allow-discrete;
+  }
+  .format-dialog[open]::backdrop {
+    opacity: 1;
+    transition:
+      opacity 150ms var(--ease-out),
+      overlay 150ms allow-discrete,
+      display 150ms allow-discrete;
+  }
+  @starting-style {
+    .format-dialog[open]::backdrop {
+      opacity: 1;
+    }
+  }
+
+}
+
+.format-dialog::backdrop {
+  background: var(--backdrop);
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-shrink: 0;
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.dialog-header h2 {
+  font-size: 18px;
+  color: var(--yellow);
+}
+
+.dialog-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 18px 22px 22px;
+}
+
+.search-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-field svg {
+  position: absolute;
+  left: 12px;
+  color: var(--text-faint);
+  pointer-events: none;
+}
+
+.search-field input {
+  padding-left: 35px;
+  font-size: 13px;
+}
+
+.search-field input::-webkit-search-cancel-button {
+  cursor: pointer;
+  filter: invert(60%);
+}
+
+/* Laid out like an assembly guide: a numbered step, then the plates showing
+   what works and what does not. */
+.format-groups section {
+  padding-top: 30px;
+}
+
+.format-groups h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--yellow);
+}
+
+.step-number {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--yellow-edge);
+  border-radius: 50%;
+  color: var(--yellow);
+  font-size: 12px;
+}
+
+.format-groups h3::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.group-note {
+  margin: 0 0 14px;
+  padding-left: 32px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.plate-caption {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  font-size: 12px;
+}
+
+.example-grid + .plate-caption {
+  margin-top: 16px;
+}
+
+.plate-caption.ok {
+  color: var(--green);
+}
+
+.plate-caption.bad {
+  color: var(--error-caption);
+}
+
+.pitfalls {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pitfall-pair {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.pitfall-wrong {
+  padding: 6px 10px;
+  border: 1px dashed var(--error-border-muted);
+  border-radius: var(--radius-sm);
+  color: var(--text-faint);
+  font-size: 12px;
+  text-decoration: line-through;
+  text-decoration-color: var(--error-accent);
+  overflow-wrap: anywhere;
+}
+
+.pitfall-arrow {
+  flex-shrink: 0;
+  color: var(--text-faint);
+}
+
+.pitfall-right {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text-example);
+  font-size: 12px;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.pitfall-right:hover {
+  border-color: var(--yellow-edge);
+  background: var(--yellow-soft);
+  color: var(--yellow);
+}
+
+.pitfall-why {
+  margin: 4px 0 0;
+  padding-left: 2px;
+  color: var(--text-faint);
+  font-size: 11px;
+}
+
+.no-matches {
+  padding-top: 24px;
+}
+
+.example-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.example-grid button {
+  padding: 10px 12px;
+  text-align: left;
+  background: var(--surface-2);
+  color: var(--text-example);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.example-grid button:hover {
+  border-color: var(--yellow-edge);
+  background: var(--yellow-soft);
+  color: var(--yellow);
+}
+
+.dialog-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-shrink: 0;
+  padding: 11px 22px;
+  border-top: 1px solid var(--border);
+  color: var(--text-faint);
+  font-size: 11px;
+}
+
+kbd {
+  padding: 1px 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  background: var(--surface-2);
+  font: inherit;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+body:has(dialog[open]) {
+  overflow: hidden;
+}

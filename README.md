@@ -37,7 +37,7 @@ Date-only ISO input keeps the original UTC interpretation. Other calendar input 
 
 ## Interface
 
-The searchable Formats & examples dialog converts selected examples immediately and returns focus to the input for editing. It also shows unsupported inputs with clickable corrections. The native dialog supports Escape, focus containment, and restoring focus. The calendar button beside Convert opens a local date picker and converts the selected date and time.
+The searchable Formats & examples dialog converts selected examples immediately and returns focus to the input for editing. It also shows unsupported inputs with clickable corrections. The native dialog supports Escape, focus containment, and restoring focus. The calendar button opens a themed React Datepicker with a fixed six-row calendar and draggable hour/minute wheels. Apply converts the selection in local time; closing the dialog discards the draft. Changing dates preserves the selected time. The month heading blends between labels in proportion to swipe progress. Month swipes can interrupt settling animations, and the time wheels snap with spring motion. Holding the navigation arrows repeats the action; keyboard arrows also adjust time. Swipes ending outside the dialog do not dismiss it.
 
 UTC previews change only the displayed timezone. Show codes displays the exact clipboard content. Copy buttons use Lucide copy/check icons with accessible labels and success announcements. Failed clipboard writes expose the value for manual copying. Invalid conversions show an error and retain the last successful result.
 
@@ -50,10 +50,11 @@ Torph animates result updates, while CSS handles entrances and icon feedback. Bo
 - `src/lib/date-time/calendar.ts`: clock parsing, timezone resolution, and DST validation.
 - `src/lib/date-time/format.ts`: Discord output formats and relative previews.
 - `src/components/`: format guide, result list, and copy controls.
+- `src/styles.css`: stylesheet import order. `src/styles/` separates theme tokens, base styles, converter controls, results, the format guide, and shared motion/responsive adaptations. Keep color values in `theme.css`.
 - `src/data/examples.ts`: grouped examples used by the guide and checked by tests.
 - `tests/date-time.test.ts`: existing format coverage, new language, and calendar edge cases.
 
-The parser uses native Date and Intl APIs. Lucide is the only new runtime dependency for these additions.
+The parser uses native Date and Intl APIs. Lucide supplies icons, and React Datepicker supplies calendar and time selection.
 
 ## Origin
 

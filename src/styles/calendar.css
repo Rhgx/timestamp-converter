@@ -1,0 +1,428 @@
+.calendar-dialog {
+  width: min(560px, calc(100% - 24px));
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  overflow: auto;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* Drags can start on labels or cross controls, not just the date grid. */
+.calendar-dialog,
+.calendar-dialog * {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.calendar-dialog::backdrop {
+  background: var(--backdrop);
+}
+
+.calendar-body {
+  padding: 18px;
+}
+
+.calendar-title-row,
+.calendar-navigation,
+.calendar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.calendar-title-row {
+  margin-bottom: 16px;
+}
+.calendar-title-row h2 {
+  font-size: 16px;
+  margin-right: auto;
+}
+.calendar-now {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 6px;
+  background: none;
+  border: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.calendar-now:hover,
+.calendar-now:active {
+  color: var(--yellow);
+}
+.calendar-now svg {
+  flex-shrink: 0;
+}
+.calendar-actions {
+  margin-top: 16px;
+}
+.calendar-actions .convert-button {
+  min-width: 110px;
+}
+.calendar-navigation {
+  padding: 0 4px 8px;
+}
+.calendar-navigation > span {
+  color: var(--yellow);
+}
+.calendar-month-heading {
+  --month-progress: 0;
+  --month-direction: 1;
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  color: var(--yellow);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.calendar-month-heading > span {
+  grid-area: 1 / 1;
+}
+.month-label-current {
+  opacity: calc(1 - var(--month-progress));
+  transform: translateX(
+    calc(var(--month-progress) * var(--month-direction) * -8px)
+  );
+  filter: blur(calc(var(--month-progress) * 2px));
+}
+.month-label-preview {
+  opacity: var(--month-progress);
+  transform: translateX(
+    calc((1 - var(--month-progress)) * var(--month-direction) * 8px)
+  );
+  filter: blur(calc((1 - var(--month-progress)) * 2px));
+}
+.spring-icon svg {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  backface-visibility: hidden;
+}
+.spring-icon svg * {
+  vector-effect: non-scaling-stroke;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .spring-icon svg {
+    transition: transform 220ms var(--ease-spring);
+  }
+  .spring-icon:active:not(:disabled) svg {
+    transform: scale(0.95);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .calendar-month-heading > span {
+    transform: none;
+    filter: none;
+  }
+}
+.calendar-navigation .icon-button {
+  width: 32px;
+  min-height: 32px;
+}
+
+.calendar-dialog .react-datepicker {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  border: 0;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+}
+
+.calendar-dialog .react-datepicker__month-container {
+  flex: 1;
+  min-width: 0;
+}
+.calendar-dialog .react-datepicker__header {
+  background: var(--surface);
+  border-color: var(--border);
+}
+.calendar-dialog .react-datepicker__month {
+  margin: 6px 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.calendar-dialog .calendar-month-outgoing {
+  position: absolute;
+  left: 0;
+  margin: 0;
+  pointer-events: none;
+  transform: translateX(calc(var(--month-x, 0px) + var(--outgoing-offset)));
+}
+.calendar-dialog .react-datepicker__week,
+.calendar-dialog .react-datepicker__day-names {
+  display: flex;
+}
+.calendar-dialog .react-datepicker__day,
+.calendar-dialog .react-datepicker__day-name {
+  flex: 1;
+  width: auto;
+  margin: 1px;
+  line-height: 32px;
+  color: var(--text);
+}
+.calendar-dialog .react-datepicker__day-name {
+  color: var(--muted);
+}
+.calendar-dialog .react-datepicker__day--outside-month,
+.calendar-dialog .react-datepicker__day--disabled {
+  color: var(--text-faint);
+}
+.calendar-dialog .react-datepicker__day:not([aria-disabled="true"]):hover,
+.calendar-dialog .react-datepicker__day--keyboard-selected {
+  background: var(--yellow-soft);
+  color: var(--yellow);
+  border-radius: var(--radius-sm);
+}
+.calendar-dialog .react-datepicker__day--selected {
+  background: var(--yellow);
+  color: var(--text-on-yellow);
+  border-radius: var(--radius-sm);
+}
+.calendar-dialog .react-datepicker__day:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: -2px;
+}
+
+.calendar-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 148px;
+  gap: 16px;
+  align-items: start;
+}
+.calendar-month {
+  min-width: 0;
+  touch-action: pan-y;
+}
+.calendar-month-viewport {
+  position: relative;
+  touch-action: pan-y;
+  user-select: none;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 290px;
+}
+
+.time-wheel-viewport {
+  position: relative;
+  width: 48px;
+  height: 160px;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+  font-variant-numeric: tabular-nums;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    var(--text) 30%,
+    var(--text) 70%,
+    transparent
+  );
+}
+.time-wheel-viewport:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: -2px;
+}
+.time-wheel-track {
+  position: relative;
+  top: 64px;
+  touch-action: none;
+}
+.time-wheel-number {
+  height: 32px;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+}
+.time-wheel-highlight {
+  position: absolute;
+  top: 64px;
+  height: 32px;
+  width: 100%;
+  border-top: 1px solid var(--yellow-edge);
+  border-bottom: 1px solid var(--yellow-edge);
+  pointer-events: none;
+}
+.calendar-month-shell {
+  min-width: 0;
+}
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  padding: 8px 0;
+}
+.calendar-month-shell .calendar-month-viewport {
+  min-height: 216px;
+  height: 216px;
+}
+.calendar-month-track {
+  display: grid;
+  grid-template-columns: repeat(3, 100%);
+  transform: translateX(calc((-1 + var(--month-offset, 0)) * 100%));
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.calendar-month-page {
+  min-width: 0;
+}
+.calendar-month-page .react-datepicker__header {
+  display: none;
+}
+.calendar-month-page .react-datepicker__day-names {
+  display: none;
+}
+.calendar-month-page .react-datepicker__month {
+  margin: 0;
+}
+.calendar-month-page .react-datepicker__week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  height: 36px;
+}
+.calendar-month-page .react-datepicker__day {
+  justify-self: center;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  flex: none;
+  border-radius: 50%;
+}
+.calendar-month-page .react-datepicker__day--selected,
+.calendar-month-page .react-datepicker__day--keyboard-selected,
+.calendar-month-page .react-datepicker__day:not([aria-disabled="true"]):hover {
+  border-radius: 50%;
+}
+@media (max-width: 480px) {
+  .calendar-month-page .react-datepicker__day {
+    width: 26px;
+    height: 26px;
+    line-height: 26px;
+    font-size: 11px;
+  }
+}
+
+/* Animate the button surface, not the SVG strokes it contains. */
+.secondary-button.spring-icon {
+  position: relative;
+  isolation: isolate;
+  background: none;
+  border-color: transparent;
+}
+.secondary-button.spring-icon::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border: 1px solid var(--border-strong);
+  border-radius: inherit;
+  background: var(--surface-2);
+  pointer-events: none;
+}
+.secondary-button.spring-icon:hover:not(:disabled) {
+  background: none;
+  border-color: transparent;
+}
+.secondary-button.spring-icon:hover:not(:disabled)::before {
+  background: var(--surface-3);
+  border-color: var(--border-button-hover);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .spring-icon::before {
+    transition:
+      transform 240ms var(--ease-spring),
+      background-color 120ms var(--ease-out),
+      border-color 120ms var(--ease-out);
+  }
+  .spring-icon:active:not(:disabled)::before {
+    transform: scale(0.94);
+  }
+}
+.calendar-time {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid var(--border);
+  padding-left: 12px;
+  gap: 4px;
+}
+.time-wheel {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  min-width: 54px;
+}
+.time-wheel-label {
+  color: var(--muted);
+  font-size: 11px;
+}
+.calendar-time .icon-button {
+  width: 36px;
+  min-height: 32px;
+  background: none;
+  border: 0;
+  color: var(--muted);
+}
+.calendar-time .icon-button:hover:not(:disabled) {
+  color: var(--yellow);
+  background: var(--yellow-soft);
+}
+.calendar-dialog .icon-button:active:not(:disabled) {
+  color: var(--yellow);
+  border-color: var(--yellow-edge);
+}
+.time-separator {
+  color: var(--muted);
+  padding-top: 18px;
+}
+.calendar-dialog .icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+.calendar-dialog .icon-button svg {
+  display: block;
+  margin: 0;
+  flex-shrink: 0;
+}
+@media (max-width: 480px) {
+  .calendar-layout {
+    grid-template-columns: minmax(0, 1fr) 116px;
+    gap: 8px;
+  }
+  .calendar-body {
+    padding: 12px;
+  }
+  .calendar-time {
+    padding-left: 6px;
+    gap: 0;
+  }
+  .time-wheel {
+    min-width: 48px;
+  }
+  .calendar-navigation {
+    padding: 0 0 8px;
+    gap: 2px;
+  }
+  .calendar-navigation > span {
+    font-size: 11px;
+  }
+  .calendar-navigation .icon-button {
+    width: 26px;
+    min-height: 32px;
+  }
+}

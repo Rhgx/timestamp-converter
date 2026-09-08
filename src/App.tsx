@@ -1,19 +1,17 @@
 import { useRef, useState } from "react";
-import { CalendarDays, X } from "lucide-react";
-import type { FormEvent } from "react";
+import { X } from "lucide-react";
+import type { SubmitEvent } from "react";
 import { timezoneData } from "./data";
 import { parseDateTime } from "./lib/date-time/parse";
 import { FormatHelp } from "./components/FormatHelp";
 import { Results } from "./components/Results";
+import { CalendarPicker } from "./components/CalendarPicker";
 
 export default function App() {
   const [input, setInput] = useState("");
-  const [calendarInput, setCalendarInput] = useState("");
   const [date, setDate] = useState<Date | null>(null);
   const [error, setError] = useState("");
-  const [pickerFallback, setPickerFallback] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const calendarRef = useRef<HTMLInputElement>(null);
 
   function convert(value: string) {
     const trimmed = value.trim();
@@ -42,24 +40,10 @@ export default function App() {
     setInput("");
     setError("");
     setDate(null);
-    setCalendarInput("");
     inputRef.current?.focus();
   }
 
-  // The native picker is the whole interaction; if a browser withholds it,
-  // fall back to showing the field itself.
-  function openCalendar() {
-    const element = calendarRef.current;
-    if (!element) return;
-    try {
-      element.showPicker();
-    } catch {
-      setPickerFallback(true);
-      element.focus();
-    }
-  }
-
-  function submit(event: FormEvent<HTMLFormElement>) {
+  function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     convert(input);
   }
@@ -93,33 +77,7 @@ export default function App() {
           <button className="convert-button" type="submit">
             Convert
           </button>
-          <div className="calendar-field">
-            <button
-              className="secondary-button icon-button"
-              type="button"
-              onClick={openCalendar}
-              aria-label="Choose date and time from a calendar"
-              title="Choose from calendar"
-            >
-              <CalendarDays size={18} aria-hidden="true" />
-            </button>
-            <label className="sr-only" htmlFor="calendar-input">
-              Local date and time
-            </label>
-            <input
-              ref={calendarRef}
-              id="calendar-input"
-              className={pickerFallback ? "" : "calendar-hidden"}
-              type="datetime-local"
-              value={calendarInput}
-              min="1900-01-01T00:00"
-              max="3000-12-31T23:59"
-              onChange={(event) => {
-                setCalendarInput(event.target.value);
-                if (event.target.value) convert(event.target.value);
-              }}
-            />
-          </div>
+          <CalendarPicker value={date} onApply={choose} />
           <button
             className="secondary-button icon-button"
             type="button"
