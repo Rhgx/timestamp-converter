@@ -1,61 +1,77 @@
 # Discord Unix Timestamp Converter
 
-Convert a date or time into Unix seconds and all nine Discord timestamp formats. Built with React, TypeScript, Vite, and [Torph](https://torph.lochie.me/).
+[![website](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/documentation/website_vector.svg)](https://rhgx.github.io/timestamp-converter/)
+[![docs](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/documentation/generic_vector.svg)](.docs/)
+![react](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/built-with/react_vector.svg)
+![typescript](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/built-with/typescript_vector.svg)
 
-## Development
+Type a date the way you would say it, and get a Discord timestamp that shows up in every reader's own timezone and language.
 
-Use Node.js 22.12 or newer and pnpm 11.3.0.
+**[Open the converter](https://rhgx.github.io/timestamp-converter/)**
+
+![The converter showing every Discord format for "next Friday at 18:30"](.docs/assets/screenshot.png)
+
+## How to use it
+
+1. Type a date or time, such as `tomorrow at 3pm` or `next Friday at noon UTC`. You can also pick one from the calendar button.
+2. Press **Convert**.
+3. Copy the format you want and paste it into a Discord message.
+
+Discord replaces the pasted tag, such as `<t:1704122430:f>`, with the date in each reader's local time. Someone in Tokyo and someone in New York see the same moment, each in their own clock.
+
+## What you can type
+
+| Kind | Examples |
+| --- | --- |
+| Relative | `in 3 hours`, `in 1h 30m`, `two hours ago`, `in 3 days at noon` |
+| Named days | `tomorrow at 3pm`, `3pm next Friday`, `tomorrow morning`, `tonight at 9`, `end of month` |
+| Calendar dates | `Jan 1st 2027 at 3:00 PM`, `25 December at noon`, `15.01.2027 14:30` |
+| With a place or timezone | `8pm in Mumbai`, `noon California`, `noon India time`, `noon Springfield, IL`, `2 PM EST`, `noon UTC+05:30` |
+| Timestamps and tags | `1704067200`, `1704067200000ms`, `<t:1704067200:F>` |
+
+As you type, the converter shows how it reads your text. Dates without a timezone use your local time. Slash dates are month first (`01/15/2027`); dotted dates are day first (`15.01.2027`).
+
+In the app, **Formats & examples** lists every supported form with clickable examples and the most common mistakes. The full rules are in [input formats](.docs/input-formats.md).
+
+## Discord formats
+
+Examples are for `2024-01-01 15:20:30 UTC` in an en-US Discord client. Each reader sees their own language and timezone.
+
+| Format | Paste this | Readers see |
+| --- | --- | --- |
+| Short time | `<t:1704122430:t>` | 3:20 PM |
+| Long time | `<t:1704122430:T>` | 3:20:30 PM |
+| Short date | `<t:1704122430:d>` | 01/01/2024 |
+| Long date | `<t:1704122430:D>` | January 1, 2024 |
+| Date & time | `<t:1704122430:f>` | January 1, 2024 at 3:20 PM |
+| Date, day & time | `<t:1704122430:F>` | Monday, January 1, 2024 at 3:20 PM |
+| Short date & time | `<t:1704122430:s>` | 01/01/2024, 3:20 PM |
+| Short date & long time | `<t:1704122430:S>` | 01/01/2024, 3:20:30 PM |
+| Relative | `<t:1704122430:R>` | 3 years ago (counts live) |
+
+## Tips
+
+- **Share a conversion.** The address bar keeps your input as `?q=`, so you can bookmark or send the link. Relative input such as `tomorrow` is worked out again when the link opens, so add a date or timezone when the link is for someone else.
+- **Check another timezone.** Add it to the input (`3pm Pacific time`), or turn on **UTC previews** to see the results in UTC.
+- **See exactly what gets copied.** **Show codes** swaps each preview for the tag you will paste.
+
+## Run it locally
+
+You need Node.js 22.12 or newer and pnpm.
 
 ```sh
 pnpm install
 pnpm dev
 ```
 
-```sh
-pnpm test
-pnpm build
-pnpm preview
-```
+See [development](.docs/development.md) for tests, the project layout, and deployment.
 
-The app runs under `/timestamp-converter/` in development and production. The Pages workflow tests and builds every push to `main`.
+## Documentation
 
-## Supported input
+- [Input formats](.docs/input-formats.md): everything the parser accepts, and how it resolves timezones, DST, and relative dates.
+- [Interface](.docs/interface.md): how the dialogs, calendar, results, and links behave.
+- [Development](.docs/development.md): setup, scripts, code layout, and conventions.
 
-- Unix timestamps in seconds or milliseconds, and Discord tags such as `<t:1704067200:F>`.
-- ISO dates and times, such as `2025-05-03T10:00Z`.
-- Natural dates such as `Jan 1st 2024 at 3:00 PM`, or US dates such as `01/15/2024`.
-- `now`, `today`, `tomorrow`, `yesterday`, `next week`, `last month`, `in 3 hours`, and `2 days ago`.
-- Time alone, such as `14:30 UTC` or `2 PM EST`.
-- `Time @ D/M/Y`, such as `4.00 @ 10/5/2025 CDT`.
-- Explicit UTC offsets, timezone abbreviations, and IANA zones such as `America/New_York`.
+## Credits
 
-Abbreviations retain the original converter's regional mappings. For example, `EST` maps to New York and follows its seasonal offset. Use explicit UTC offsets when a fixed offset is needed. Browser `Intl` supplies timezone and daylight saving rules; the bundled JSON files provide the original abbreviation mappings and fallback offsets.
-
-Additional natural language includes `tomorrow at 3pm`, `next Friday at noon`, `day after tomorrow`, `tonight`, `end of month`, and `start of next month`. Durations accept compound and abbreviated units, such as `in 1h 30m`, `two hours ago`, `+45m`, and `in half an hour`. Named dates also accept the day first, or omit the year. Dotted and day-first hyphenated dates use day/month/year; slash dates keep the original month/day/year convention.
-
-Date-only ISO input keeps the original UTC interpretation. Other calendar input defaults to local time. Relative dates use the calendar in the specified timezone. Named dates without a year use the current year, tonight means 20:00, and weeks run Monday to Sunday. A bare weekday means its next occurrence including today; `next` excludes today. Hours count elapsed time, while days and months follow the calendar. Month changes clamp to the last valid day. DST gaps are rejected and repeated times choose the earlier occurrence.
-
-## Interface
-
-The searchable Formats & examples dialog converts selected examples immediately and returns focus to the input for editing. It also shows unsupported inputs with clickable corrections. The native dialog supports Escape, focus containment, and restoring focus. The calendar button opens a themed React Datepicker with a fixed six-row calendar and draggable hour/minute wheels. Apply converts the selection in local time; closing the dialog discards the draft. Changing dates preserves the selected time. The month heading blends between labels in proportion to swipe progress. Month swipes can interrupt settling animations, and the time wheels snap with spring motion. Holding the navigation arrows repeats the action; keyboard arrows also adjust time. Swipes ending outside the dialog do not dismiss it.
-
-UTC previews change only the displayed timezone. Show codes displays the exact clipboard content. Copy buttons use Lucide copy/check icons with accessible labels and success announcements. Failed clipboard writes expose the value for manual copying. Invalid conversions show an error and retain the last successful result.
-
-Torph animates result updates, while CSS handles entrances and icon feedback. Both respect reduced motion preferences.
-
-## Code layout
-
-- `src/lib/date-time/parse.ts`: Unix, Discord, ISO, and calendar syntax.
-- `src/lib/date-time/natural.ts`: relative phrases, weekdays, and durations.
-- `src/lib/date-time/calendar.ts`: clock parsing, timezone resolution, and DST validation.
-- `src/lib/date-time/format.ts`: Discord output formats and relative previews.
-- `src/components/`: format guide, result list, and copy controls.
-- `src/styles.css`: stylesheet import order. `src/styles/` separates theme tokens, base styles, converter controls, results, the format guide, and shared motion/responsive adaptations. Keep color values in `theme.css`.
-- `src/data/examples.ts`: grouped examples used by the guide and checked by tests.
-- `tests/date-time.test.ts`: existing format coverage, new language, and calendar edge cases.
-
-The parser uses native Date and Intl APIs. Lucide supplies icons, and React Datepicker supplies calendar and time selection.
-
-## Origin
-
-Migrated from [`Rhgx/rhgx.github.io/timestamp-converter`](https://github.com/Rhgx/rhgx.github.io/tree/b7c432abff23b4617f4dbf03cc2db30056e4c535/timestamp-converter). The parser, formatter, and timezone data were ported from that version. Bootstrap, Typed.js, and Anime.js are replaced by local CSS, React rendering, and Torph.
+Icons by [Lucide](https://lucide.dev/), text morphing by [Torph](https://torph.lochie.me/), the calendar grid by [React Datepicker](https://reactdatepicker.com/), and place names by [city-timezones](https://github.com/kevinroberts/city-timezones).
