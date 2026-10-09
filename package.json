@@ -2,6 +2,7 @@
   "name": "timestamp-converter",
   "private": true,
   "version": "1.0.0",
+  "license": "MIT",
   "type": "module",
   "packageManager": "pnpm@11.3.0",
   "scripts": {

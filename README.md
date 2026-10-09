@@ -75,3 +75,7 @@ See [development](.docs/development.md) for tests, the project layout, and deplo
 ## Credits
 
 Icons by [Lucide](https://lucide.dev/), text morphing by [Torph](https://torph.lochie.me/), the calendar grid by [React Datepicker](https://reactdatepicker.com/), and place names by [city-timezones](https://github.com/kevinroberts/city-timezones).
+
+## License
+
+[MIT](LICENSE)
