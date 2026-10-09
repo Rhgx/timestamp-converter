@@ -278,6 +278,13 @@
 .calendar-month-page {
   min-width: 0;
 }
+.calendar-loading {
+  margin: 0;
+  padding: 24px 12px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
 .calendar-month-page .react-datepicker__header {
   display: none;
 }

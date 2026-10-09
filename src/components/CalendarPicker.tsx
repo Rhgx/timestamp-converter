@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { CalendarDays, Clock3, X } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
-import { MonthCarousel } from "./MonthCarousel";
+import { loadDatePicker, MonthCarousel } from "./MonthCarousel";
 import { TimeWheel } from "./TimeWheel";
 
 export function CalendarPicker({
@@ -39,6 +39,8 @@ export function CalendarPicker({
         aria-label="Choose date and time from a calendar"
         title="Choose from calendar"
         aria-haspopup="dialog"
+        onPointerEnter={() => void loadDatePicker()}
+        onFocus={() => void loadDatePicker()}
         onClick={() => {
           setDraft(new Date(value ?? Date.now()));
           setOpen(true);

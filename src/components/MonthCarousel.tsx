@@ -1,4 +1,5 @@
 import {
+  Component,
   lazy,
   memo,
   Suspense,
@@ -7,7 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
-import type { PointerEvent } from "react";
+import type { PointerEvent, ReactNode } from "react";
 import { flushSync } from "react-dom";
 import {
   animate,
@@ -18,7 +19,30 @@ import {
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { RepeatButton } from "./RepeatButton";
 
-const DatePicker = lazy(() => import("react-datepicker"));
+// Exported so the calendar button can start the download before it is opened.
+export const loadDatePicker = () => import("react-datepicker");
+const DatePicker = lazy(loadDatePicker);
+
+// A failed download (offline, or a deploy replaced the chunk) stays inside the
+// dialog instead of unmounting the whole app.
+class CalendarBoundary extends Component<
+  { children: ReactNode },
+  { failed: boolean }
+> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  render() {
+    return this.state.failed ? (
+      <p className="calendar-loading" role="alert">
+        Couldn't load the calendar. Refresh the page and try again.
+      </p>
+    ) : (
+      this.props.children
+    );
+  }
+}
 const minDate = new Date(1900, 0, 1);
 const maxDate = new Date(3000, 11, 31);
 const firstMonth = 1900 * 12;
@@ -301,29 +325,32 @@ export function MonthCarousel({
         }}
       >
         <div className="calendar-month-track">
-          <Suspense
-            fallback={
-              <div className="calendar-loading" role="status">
-                Loading calendar…
-              </div>
-            }
-          >
-            {[-1, 0, 1].map((offset) => (
-              <div
-                className="calendar-month-page"
-                key={center + offset}
-                aria-hidden={offset !== 0 || undefined}
-                inert={offset !== 0}
-              >
-                <MonthPage
-                  month={center + offset}
-                  selected={selected}
-                  onChange={selectDate}
-                  onMonthChange={keyboardMonth}
-                />
-              </div>
-            ))}
-          </Suspense>
+          {[-1, 0, 1].map((offset) => (
+            <div
+              className="calendar-month-page"
+              key={center + offset}
+              aria-hidden={offset !== 0 || undefined}
+              inert={offset !== 0}
+            >
+              {/* Boundaries per page keep fallbacks in the visible column. */}
+              <CalendarBoundary>
+                <Suspense
+                  fallback={
+                    <p className="calendar-loading" role="status">
+                      Loading calendar…
+                    </p>
+                  }
+                >
+                  <MonthPage
+                    month={center + offset}
+                    selected={selected}
+                    onChange={selectDate}
+                    onMonthChange={keyboardMonth}
+                  />
+                </Suspense>
+              </CalendarBoundary>
+            </div>
+          ))}
         </div>
       </div>
     </div>
