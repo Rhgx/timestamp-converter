@@ -34,7 +34,7 @@ export function parseDateTime(
     .replace(/\s+/g, " ");
   if (!input || input.length > 500 || !Number.isFinite(reference.getTime()))
     return null;
-  const discord = input.match(/^<t:(-?\d+)(?::[tTdDfFR])?>$/);
+  const discord = input.match(/^<t:(-?\d+)(?::[tTdDfFsSR])?>$/);
   if (discord) {
     const date = new Date(Number(discord[1]) * 1000);
     return Number.isFinite(date.getTime()) ? date : null;

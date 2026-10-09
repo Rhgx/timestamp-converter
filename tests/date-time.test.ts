@@ -12,6 +12,7 @@ const cases = [
   ["1704067200000", "2024-01-01T00:00:00.000Z"],
   ["<t:1704067200:F>", "2024-01-01T00:00:00.000Z"],
   ["<t:1704067200>", "2024-01-01T00:00:00.000Z"],
+  ["<t:1704067200:S>", "2024-01-01T00:00:00.000Z"],
   ["2025-05-03T10:00Z", "2025-05-03T10:00:00.000Z"],
   ["2025-05-03T10:00+03:00", "2025-05-03T07:00:00.000Z"],
   ["2025-05-03", "2025-05-03T00:00:00.000Z"],
@@ -224,19 +225,22 @@ test("time-only inputs still accept timezones", () => {
   }
 });
 
-test("all seven Discord styles and Unix seconds copy the exact value", () => {
+test("all nine Discord styles and Unix seconds copy the exact value", () => {
   const results = formatDateTime(new Date("2024-01-01T00:00:00Z"));
   assert.equal(String(results.unixTimestamp.copy), "1704067200");
   assert.deepEqual(
     Object.values(results)
       .slice(1)
       .map((result) => result.copy),
-    ["t", "T", "d", "D", "f", "F", "R"].map(
+    ["t", "T", "d", "D", "f", "F", "s", "S", "R"].map(
       (style) => `<t:1704067200:${style}>`,
     ),
   );
   for (const result of Object.values(results))
     assert.notEqual(result.display, "Error");
+  // Discord keeps the full year in short dates.
+  assert.match(results.shortDate.display, /2024/);
+  assert.match(results.shortDateShortTime.display, /2024/);
   assert.equal(
     getRelativeTime(new Date()),
     new Intl.RelativeTimeFormat(undefined, { numeric: "auto" }).format(

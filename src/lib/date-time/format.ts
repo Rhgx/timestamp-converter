@@ -6,14 +6,22 @@ export const formats = [
   { key: "longDate", label: "Long date", style: "D" },
   { key: "longDateShortTime", label: "Date & time", style: "f" },
   { key: "longDateDayShortTime", label: "Date, day & time", style: "F" },
+  { key: "shortDateShortTime", label: "Short date & time", style: "s" },
+  { key: "shortDateLongTime", label: "Short date & long time", style: "S" },
   { key: "relative", label: "Relative", style: "R" },
 ] as const;
 
 type FormatKey = (typeof formats)[number]["key"];
+// Discord's short date keeps a four-digit year, unlike Intl's dateStyle "short".
+const shortDate: Intl.DateTimeFormatOptions = {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+};
 const previewOptions: Record<string, Intl.DateTimeFormatOptions> = {
   t: { timeStyle: "short" },
   T: { timeStyle: "medium" },
-  d: { dateStyle: "short" },
+  d: shortDate,
   D: { dateStyle: "long" },
   f: { dateStyle: "long", timeStyle: "short" },
   F: {
@@ -24,6 +32,8 @@ const previewOptions: Record<string, Intl.DateTimeFormatOptions> = {
     hour: "numeric",
     minute: "numeric",
   },
+  s: { ...shortDate, hour: "numeric", minute: "2-digit" },
+  S: { ...shortDate, hour: "numeric", minute: "2-digit", second: "2-digit" },
 };
 
 export function formatDateTime(date: Date, timeZone?: string) {
@@ -52,6 +62,8 @@ export function formatDateTime(date: Date, timeZone?: string) {
     longDate: result("D"),
     longDateShortTime: result("f"),
     longDateDayShortTime: result("F"),
+    shortDateShortTime: result("s"),
+    shortDateLongTime: result("S"),
     relative: result("R"),
   };
   return results;

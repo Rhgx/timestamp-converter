@@ -1,6 +1,6 @@
 # Discord Unix Timestamp Converter
 
-Convert a date or time into Unix seconds and all seven Discord timestamp formats. Built with React, TypeScript, Vite, and [Torph](https://torph.lochie.me/).
+Convert a date or time into Unix seconds and all nine Discord timestamp formats. Built with React, TypeScript, Vite, and [Torph](https://torph.lochie.me/).
 
 ## Development
 

@@ -137,7 +137,7 @@ export const exampleGroups = [
       {
         wrong: "<t:1704067200:X>",
         right: "<t:1704067200:F>",
-        why: "Styles are t, T, d, D, f, F, and R.",
+        why: "Styles are t, T, d, D, f, F, s, S, and R.",
       },
       {
         wrong: "<t:1704067200:f",
