@@ -98,15 +98,18 @@ export const exampleGroups = [
   },
   {
     title: "Timezones",
-    note: "Append an abbreviation, city alias, IANA zone, or UTC offset. Abbreviations follow their mapped region, including DST. Missing DST times are rejected; repeated times use the earlier occurrence.",
+    note: "End with a city, state, country, abbreviation, IANA zone, or UTC offset, optionally after in or before time. Add a state or country to a shared city name, and name a city for a country that spans several zones. Abbreviations follow their mapped region, including DST. Missing DST times are rejected; repeated times use the earlier occurrence.",
     examples: [
       "tomorrow at 3pm UTC",
+      "8pm in Mumbai",
+      "noon India time",
+      "noon Springfield, IL",
       "next Friday at noon Pacific time",
       "14:30 Europe/Istanbul",
       "2 PM EST",
       "12:00 IST (Ireland)",
       "tomorrow at noon UTC+05:30",
-      "noon Tokyo",
+      "noon California",
     ],
     pitfalls: [
       {
@@ -120,9 +123,19 @@ export const exampleGroups = [
         why: "Offsets stop at 14 hours either side.",
       },
       {
+        wrong: "noon Springfield",
+        right: "noon Springfield, IL",
+        why: "Several cities share that name. Add the state or country.",
+      },
+      {
         wrong: "noon at Tokyo",
-        right: "noon Tokyo",
-        why: "The zone follows the time directly, with no at.",
+        right: "noon in Tokyo",
+        why: "Put in, or nothing, before a place.",
+      },
+      {
+        wrong: "noon USA",
+        right: "noon New York",
+        why: "The US spans several timezones, so name a city or state. The same goes for Canada, Russia, and Australia.",
       },
     ],
   },

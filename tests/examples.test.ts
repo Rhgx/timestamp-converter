@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { timezoneData } from "../src/data/timezones";
+import { placesReady, timezoneData } from "../src/data/timezones";
 import { exampleGroups } from "../src/data/examples";
 import { parseDateTime } from "../src/lib/date-time/parse";
 
 // Expectations below are written in UTC.
 process.env.TZ = "UTC";
+await placesReady;
 
 const reference = new Date("2026-09-07T10:20:30Z");
 

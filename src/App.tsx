@@ -1,7 +1,7 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 import type { SubmitEvent } from "react";
-import { timezoneData } from "./data/timezones";
+import { placesReady, timezoneData } from "./data/timezones";
 import { parseDateTime } from "./lib/date-time/parse";
 import { FormatHelp } from "./components/FormatHelp";
 import { Results } from "./components/results/Results";
@@ -32,6 +32,19 @@ export default function App() {
     sharedInput && !sharedDate ? unreadable : "",
   );
   const inputRef = useRef<HTMLInputElement>(null);
+  const [placesLoaded, setPlacesLoaded] = useState(false);
+
+  useEffect(() => {
+    void placesReady.then(() => {
+      setPlacesLoaded(true);
+      // A shared link naming a place could not be read before places arrived.
+      const late = sharedInput && !sharedDate ? read(sharedInput) : null;
+      if (late) {
+        setDate((current) => current ?? late);
+        setError((current) => (current === unreadable ? "" : current));
+      }
+    });
+  }, []);
 
   // Shows how the input will be read before it is converted.
   const reading = input.trim() ? read(input.trim()) : null;
@@ -44,7 +57,11 @@ export default function App() {
     }
     const parsed = read(trimmed);
     if (!parsed) {
-      setError(unreadable);
+      setError(
+        placesLoaded
+          ? unreadable
+          : "Couldn't read that yet. Place names are still loading.",
+      );
       return;
     }
     setInput(trimmed);

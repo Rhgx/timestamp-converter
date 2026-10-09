@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { timezoneData } from "../src/data/timezones";
+import { placesReady, timezoneData } from "../src/data/timezones";
 import { parseDateTime } from "../src/lib/date-time/parse";
 
 // Expectations below are written in UTC.
 process.env.TZ = "UTC";
+await placesReady;
 
 const cases = [
   ["1704067200", "2024-01-01T00:00:00.000Z"],
@@ -108,9 +109,31 @@ test("rejects partially matched language, invalid clocks, and malformed offsets"
     "morning",
     "last morning",
     "in 2 hours at 3pm",
+    // Countries that span several zones, and names that mean something else.
+    "noon USA",
+    "noon United States",
+    "noon Russia",
+    "noon Georgia",
+    "noon Springfield",
+    "noon Hyderabad",
+    "noon Australia",
+    "noon Washington",
+    "noon at Tokyo",
     "infinity",
     "a".repeat(501),
   ]) {
     assert.equal(parseDateTime(input, timezoneData, reference), null, input);
   }
+});
+
+test("place names never swallow words the parser uses", () => {
+  // Mon is a state in Myanmar, and EST a town in Cameroon.
+  assert.equal(
+    parseDateTime("next mon", timezoneData, reference)?.toISOString(),
+    "2026-09-14T00:00:00.000Z",
+  );
+  assert.equal(
+    parseDateTime("noon EST", timezoneData, reference)?.toISOString(),
+    "2026-09-07T16:00:00.000Z",
+  );
 });

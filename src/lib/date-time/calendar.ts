@@ -1,6 +1,11 @@
+import { placeKey } from "./places";
+import type { Places } from "./places";
+
 export interface TimezoneData {
   ianaMap: Record<string, string>;
   offsetMap: Record<string, { standard: number; daylight?: number }>;
+  // Cities, states, and countries; filled once city-timezones has loaded.
+  places: Places;
 }
 
 export type Zone =
@@ -16,21 +21,12 @@ export interface CalendarDate {
   seconds: number;
 }
 
+// US regions, usually followed by "time". Cities and countries are in places.
 const aliases: Record<string, string> = {
   eastern: "America/New_York",
-  "eastern time": "America/New_York",
   central: "America/Chicago",
-  "central time": "America/Chicago",
   mountain: "America/Denver",
-  "mountain time": "America/Denver",
   pacific: "America/Los_Angeles",
-  "pacific time": "America/Los_Angeles",
-  london: "Europe/London",
-  istanbul: "Europe/Istanbul",
-  "turkey time": "Europe/Istanbul",
-  tokyo: "Asia/Tokyo",
-  "india time": "Asia/Kolkata",
-  sydney: "Australia/Sydney",
 };
 
 export function resolveZone(name: string, data: TimezoneData): Zone | null {
@@ -50,11 +46,15 @@ export function resolveZone(name: string, data: TimezoneData): Zone | null {
   const key = Object.keys(data.ianaMap).find(
     (key) => key.toLowerCase() === name.toLowerCase(),
   );
+  const lower = name.toLowerCase();
+  const place = data.places.get(placeKey(name));
+  // A name shared by places on different clocks needs a state or country.
+  if (!key && place === null) return null;
   const zone = key
     ? data.ianaMap[key]
-    : Object.hasOwn(aliases, name.toLowerCase())
-      ? aliases[name.toLowerCase()]
-      : name;
+    : Object.hasOwn(aliases, lower)
+      ? aliases[lower]
+      : (place ?? name);
   try {
     new Intl.DateTimeFormat("en", { timeZone: zone });
     return { kind: "iana", name: zone };
@@ -68,6 +68,8 @@ export function extractZone(
   input: string,
   data: TimezoneData,
 ): { text: string; zone: Zone } | null {
+  // Accents are optional, so "Sao Paulo" matches "São Paulo".
+  input = input.normalize("NFD").replace(/\p{M}/gu, "");
   const attached = input.match(
     /^(\d{1,2}[:.]\d{2}(?:[:.]\d{2})?)(Z|UTC|GMT|(?:UTC|GMT)?[+-]\d{1,2}(?::?\d{2})?)$/i,
   );
@@ -75,29 +77,35 @@ export function extractZone(
     const zone = resolveZone(attached[2], data);
     return zone ? { text: attached[1], zone } : null;
   }
-  const names = [
-    ...Object.keys(data.ianaMap),
-    ...Object.keys(aliases),
-    "UTC",
-    "GMT",
-    "Z",
-    "local",
-    "local time",
-  ].sort((a, b) => b.length - a.length);
-  for (const name of names) {
-    if (input.toLowerCase().endsWith(" " + name.toLowerCase())) {
-      const zone = resolveZone(name, data);
-      return zone ? { text: input.slice(0, -name.length).trim(), zone } : null;
-    }
+  // "3pm Tokyo", "3pm in Tokyo", "3pm Tokyo time", and "noon Springfield, IL".
+  const words = input.replace(/\s+time$/i, "").split(" ");
+  const abbreviations = Object.keys(data.ianaMap).map((key) => key.toLowerCase());
+  for (let size = Math.min(5, words.length - 1); size >= 1; size--) {
+    const tail = words.slice(-size).join(" ").toLowerCase();
+    const known =
+      /^(utc|gmt|z|local)$/.test(tail) ||
+      abbreviations.includes(tail) ||
+      Object.hasOwn(aliases, tail) ||
+      data.places.has(placeKey(tail));
+    if (!known) continue;
+    const zone = resolveZone(tail, data);
+    const text = words
+      .slice(0, -size)
+      .join(" ")
+      .replace(/,$/, "")
+      .replace(/\s+in$/i, "");
+    return zone ? { text, zone } : null;
   }
   const suffix = input.match(
     /\s+((?:UTC|GMT)?[+-]\d{1,2}(?::?\d{2})?|[A-Za-z_]+\/[A-Za-z0-9_+/-]+)$/i,
   );
   if (suffix) {
     const zone = resolveZone(suffix[1], data);
-    return zone
-      ? { text: input.slice(0, -suffix[0].length).trim(), zone }
-      : null;
+    const text = input
+      .slice(0, -suffix[0].length)
+      .trim()
+      .replace(/\s+in$/i, "");
+    return zone ? { text, zone } : null;
   }
   return { text: input, zone: { kind: "local" } };
 }

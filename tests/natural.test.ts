@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { timezoneData } from "../src/data/timezones";
+import { placesReady, timezoneData } from "../src/data/timezones";
 import { parseDateTime } from "../src/lib/date-time/parse";
 
 // Expectations below are written in UTC.
 process.env.TZ = "UTC";
+await placesReady;
 
 test("relative keywords and offsets retain their meaning", () => {
   const before = Date.now();
@@ -96,6 +97,29 @@ const naturalCases = [
   ["tues", "2026-09-08T00:00:00.000Z"],
   ["weds at noon", "2026-09-09T12:00:00.000Z"],
   ["thurs", "2026-09-10T00:00:00.000Z"],
+  // Cities, countries, and the ways to attach them.
+  ["noon Mumbai", "2026-09-07T06:30:00.000Z"],
+  ["noon India", "2026-09-07T06:30:00.000Z"],
+  ["noon India time", "2026-09-07T06:30:00.000Z"],
+  ["3pm in Tokyo", "2026-09-07T06:00:00.000Z"],
+  ["9am New York time", "2026-09-07T13:00:00.000Z"],
+  ["noon São Paulo", "2026-09-07T15:00:00.000Z"],
+  ["noon sao paulo", "2026-09-07T15:00:00.000Z"],
+  ["noon Germany", "2026-09-07T10:00:00.000Z"],
+  ["tomorrow at 8pm in Berlin", "2026-09-08T18:00:00.000Z"],
+  ["noon in UTC+05:30", "2026-09-07T06:30:00.000Z"],
+  ["noon local time", "2026-09-07T12:00:00.000Z"],
+  // States, provinces, and names made unique with a state or country.
+  ["noon California", "2026-09-07T19:00:00.000Z"],
+  ["noon in Texas", "2026-09-07T17:00:00.000Z"],
+  ["noon Ontario", "2026-09-07T16:00:00.000Z"],
+  ["noon Queensland", "2026-09-07T02:00:00.000Z"],
+  ["noon Springfield, IL", "2026-09-07T17:00:00.000Z"],
+  ["noon Springfield Illinois", "2026-09-07T17:00:00.000Z"],
+  ["noon Hyderabad Pakistan", "2026-09-07T07:00:00.000Z"],
+  ["noon London Ontario", "2026-09-07T16:00:00.000Z"],
+  ["noon Washington, D.C.", "2026-09-07T16:00:00.000Z"],
+  ["noon UK", "2026-09-07T11:00:00.000Z"],
 ] as const;
 
 for (const [input, expected] of naturalCases) {
