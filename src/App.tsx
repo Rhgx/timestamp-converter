@@ -1,11 +1,11 @@
 import { useRef, useState } from "react";
 import { X } from "lucide-react";
 import type { SubmitEvent } from "react";
-import { timezoneData } from "./data";
+import { timezoneData } from "./data/timezones";
 import { parseDateTime } from "./lib/date-time/parse";
 import { FormatHelp } from "./components/FormatHelp";
-import { Results } from "./components/Results";
-import { CalendarPicker } from "./components/CalendarPicker";
+import { Results } from "./components/results/Results";
+import { CalendarPicker } from "./components/calendar/CalendarPicker";
 
 const unreadable = "Couldn't read that. Check the format or timezone.";
 

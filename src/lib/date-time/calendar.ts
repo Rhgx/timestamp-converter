@@ -1,4 +1,7 @@
-import type { TimezoneData } from "../../types";
+export interface TimezoneData {
+  ianaMap: Record<string, string>;
+  offsetMap: Record<string, { standard: number; daylight?: number }>;
+}
 
 export type Zone =
   | { kind: "local" }

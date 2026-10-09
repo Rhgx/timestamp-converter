@@ -4,7 +4,7 @@ import {
   formatDateTime,
   formats,
   getRelativeTime,
-} from "../lib/date-time/format";
+} from "../../lib/date-time/format";
 import { ResultRow } from "./ResultRow";
 
 export function Results({ date }: { date: Date }) {

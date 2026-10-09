@@ -1,4 +1,3 @@
-import type { TimezoneData } from "../../types";
 import {
   calendarAt,
   dateFromCalendar,
@@ -6,6 +5,7 @@ import {
   parseClock,
   resolveZone,
 } from "./calendar";
+import type { TimezoneData } from "./calendar";
 import { parseNatural } from "./natural";
 
 const months = [

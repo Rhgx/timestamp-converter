@@ -1,0 +1,9 @@
+/* Keep shared defaults before component styles and overrides last. */
+@import "react-datepicker/dist/react-datepicker.css";
+@import "./theme.css";
+@import "./base.css";
+@import "./converter.css";
+@import "./results.css";
+@import "./format-guide.css";
+@import "./calendar.css";
+@import "./adaptations.css";
