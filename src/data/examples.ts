@@ -1,7 +1,7 @@
 export const exampleGroups = [
   {
     title: "Natural language",
-    note: "Days start at midnight. Morning is 09:00, afternoon 15:00, evening 18:00, and night or tonight 20:00; a time after one of them reads that way, so evening at 7 is 19:00. Next Friday is the next Friday after today; this Friday belongs to this Monday-to-Sunday week.",
+    note: "Days start at midnight. Morning is 9:00, afternoon 15:00, evening 18:00, and night 20:00.",
     examples: [
       "now",
       "tomorrow at 3pm",
@@ -20,7 +20,7 @@ export const exampleGroups = [
       {
         wrong: "in the morning",
         right: "tomorrow morning",
-        why: "A part of the day needs a day: this morning, Friday evening.",
+        why: "Say which day.",
       },
       {
         wrong: "this weekend",
@@ -30,13 +30,13 @@ export const exampleGroups = [
       {
         wrong: "sometime tomorrow",
         right: "tomorrow",
-        why: "Filler words around a date are not ignored.",
+        why: "Leave out filler words.",
       },
     ],
   },
   {
     title: "Durations",
-    note: "Short forms and word quantities work together. Hours are elapsed time; days, weeks, months, and years follow the calendar and can take a time. Month shifts clamp to the last valid day.",
+    note: "Mix units and number words. Days and longer can take a time.",
     examples: [
       "in 1h 30m",
       "two hours ago",
@@ -56,18 +56,18 @@ export const exampleGroups = [
       {
         wrong: "in a few minutes",
         right: "in 5 minutes",
-        why: "Quantities must be digits or number words.",
+        why: "Use a number.",
       },
       {
         wrong: "in 1 fortnight",
         right: "in 2 weeks",
-        why: "Units run from seconds to years, nothing between.",
+        why: "Use days, weeks, months, or years.",
       },
     ],
   },
   {
     title: "Dates and times",
-    note: "Slashes use MM/DD/YYYY. Dots and day-first hyphens use DD.MM.YYYY. Named dates without a year use the current year. ISO dates alone use UTC; other dates without a timezone use local time.",
+    note: "Slashes are month first, dots are day first. No year means this year.",
     examples: [
       "Jan 1st 2027 at 3:00 PM",
       "25 December at noon",
@@ -82,12 +82,12 @@ export const exampleGroups = [
       {
         wrong: "15/1/2027",
         right: "15.01.2027",
-        why: "Slashes are month-first. Day-first needs dots or hyphens.",
+        why: "Slashes are month first. Use dots for day first.",
       },
       {
         wrong: "Feb 30 2027",
         right: "Feb 28 2027",
-        why: "The day has to exist in that month.",
+        why: "That day doesn't exist.",
       },
       {
         wrong: "Jan 1 27",
@@ -98,7 +98,7 @@ export const exampleGroups = [
   },
   {
     title: "Timezones",
-    note: "End with a city, state, country, abbreviation, IANA zone, or UTC offset, optionally after in or before time. Add a state or country to a shared city name, and name a city for a country that spans several zones. Abbreviations follow their mapped region, including DST. Missing DST times are rejected; repeated times use the earlier occurrence.",
+    note: "End with a place, abbreviation, or UTC offset.",
     examples: [
       "tomorrow at 3pm UTC",
       "8pm in Mumbai",
@@ -115,33 +115,33 @@ export const exampleGroups = [
       {
         wrong: "2027-03-14 02:30 America/New_York",
         right: "2027-03-14 03:30 America/New_York",
-        why: "Clocks skip that hour when daylight saving starts.",
+        why: "That hour is skipped for daylight saving.",
       },
       {
         wrong: "noon UTC+25:00",
         right: "noon UTC+05:30",
-        why: "Offsets stop at 14 hours either side.",
+        why: "Offsets go up to 14 hours.",
       },
       {
         wrong: "noon Springfield",
         right: "noon Springfield, IL",
-        why: "Several cities share that name. Add the state or country.",
+        why: "Several cities share that name. Add the state.",
       },
       {
         wrong: "noon at Tokyo",
         right: "noon in Tokyo",
-        why: "Put in, or nothing, before a place.",
+        why: "Use in, not at.",
       },
       {
         wrong: "noon USA",
         right: "noon New York",
-        why: "The US spans several timezones, so name a city or state. The same goes for Canada, Russia, and Australia.",
+        why: "The US has several timezones. Name a city or state.",
       },
     ],
   },
   {
     title: "Unix and Discord",
-    note: "Bare timestamps use seconds, or milliseconds above 10 digits. Add s/ms or unix: to be explicit. Pasted Discord tags and surrounding backticks are accepted.",
+    note: "Seconds or milliseconds, or paste a Discord tag.",
     examples: [
       "1704067200",
       "1704067200000ms",
@@ -159,12 +159,12 @@ export const exampleGroups = [
       {
         wrong: "<t:1704067200:f",
         right: "<t:1704067200:f>",
-        why: "A tag needs both angle brackets.",
+        why: "Close the tag.",
       },
       {
         wrong: "unix: abc",
         right: "unix: 1704067200",
-        why: "The unix prefix takes digits only.",
+        why: "unix: takes a number.",
       },
     ],
   },
