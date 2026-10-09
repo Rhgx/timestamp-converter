@@ -113,7 +113,8 @@
   }
   .result-row {
     grid-template-columns: minmax(0, 1fr);
-    gap: 6px;
+    gap: 4px;
+    padding: 3px 0;
   }
   .dialog-header {
     padding: 16px 18px 14px;

@@ -7,11 +7,34 @@ import { FormatHelp } from "./components/FormatHelp";
 import { Results } from "./components/Results";
 import { CalendarPicker } from "./components/CalendarPicker";
 
+const unreadable = "Couldn't read that. Check the format or timezone.";
+
+function read(value: string) {
+  const parsed = parseDateTime(value, timezoneData);
+  return parsed && !Number.isNaN(parsed.getTime()) ? parsed : null;
+}
+
+// Links carry the input as ?q=. Relative input resolves when the link opens.
+function saveQuery(value: string) {
+  const url = new URL(location.href);
+  if (value) url.searchParams.set("q", value);
+  else url.searchParams.delete("q");
+  history.replaceState(null, "", url);
+}
+
+const sharedInput = new URLSearchParams(location.search).get("q")?.trim() ?? "";
+const sharedDate = sharedInput ? read(sharedInput) : null;
+
 export default function App() {
-  const [input, setInput] = useState("");
-  const [date, setDate] = useState<Date | null>(null);
-  const [error, setError] = useState("");
+  const [input, setInput] = useState(sharedInput);
+  const [date, setDate] = useState<Date | null>(sharedDate);
+  const [error, setError] = useState(
+    sharedInput && !sharedDate ? unreadable : "",
+  );
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Shows how the input will be read before it is converted.
+  const reading = input.trim() ? read(input.trim()) : null;
 
   function convert(value: string) {
     const trimmed = value.trim();
@@ -19,14 +42,15 @@ export default function App() {
       setError("Enter a date or time.");
       return;
     }
-    const parsed = parseDateTime(trimmed, timezoneData);
-    if (!parsed || Number.isNaN(parsed.getTime())) {
-      setError("Couldn't read that. Check the format or timezone.");
+    const parsed = read(trimmed);
+    if (!parsed) {
+      setError(unreadable);
       return;
     }
     setInput(trimmed);
     setError("");
     setDate(parsed);
+    saveQuery(trimmed);
   }
 
   // Picking from the guide is a choice, not a draft: convert it straight away
@@ -40,6 +64,7 @@ export default function App() {
     setInput("");
     setError("");
     setDate(null);
+    saveQuery("");
     inputRef.current?.focus();
   }
 
@@ -72,6 +97,7 @@ export default function App() {
             autoComplete="off"
             spellCheck={false}
             maxLength={500}
+            enterKeyHint="go"
             placeholder="e.g., tomorrow at 3pm, in 1h 30m, next Friday at noon UTC"
           />
           <button className="convert-button" type="submit">
@@ -89,10 +115,23 @@ export default function App() {
             <X size={18} aria-hidden="true" />
           </button>
         </div>
-        <p id="input-hint" className="format-help">
-          Dates without a timezone use your local time.
-        </p>
         <div className="form-actions">
+          <p id="input-hint" className="format-help">
+            {reading ? (
+              <>
+                Reads as{" "}
+                <strong>
+                  {reading.toLocaleString(undefined, {
+                    dateStyle: "full",
+                    timeStyle: "short",
+                  })}
+                </strong>
+                , your time.
+              </>
+            ) : (
+              "Dates without a timezone use your local time."
+            )}
+          </p>
           <div className="examples" aria-label="Quick dates">
             <span className="chip-legend">Quick</span>
             {["now", "tomorrow", "in 3 hours"].map((example) => (

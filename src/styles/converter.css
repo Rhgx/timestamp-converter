@@ -69,6 +69,7 @@ code {
   font-size: 12px;
 }
 
+.format-help strong,
 .result-help strong {
   color: var(--text-label);
   font-weight: 600;
@@ -161,9 +162,15 @@ button:disabled {
 
 .form-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 16px;
-  margin-top: 16px;
+  justify-content: space-between;
+  gap: 10px 16px;
+  margin-top: 10px;
+}
+
+.form-actions .format-help {
+  margin: 0;
 }
 
 .examples {

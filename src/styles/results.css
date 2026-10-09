@@ -128,16 +128,19 @@ dl {
   width: 104px;
   min-height: 40px;
   padding: 8px 12px;
-  border: 1px solid var(--yellow);
+  border: 1px solid var(--border-strong);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  color: var(--yellow);
+  color: var(--muted);
   background: none;
   font-size: 12.5px;
   font-weight: 600;
 }
 
+/* Quiet until used, so the values lead and not eight yellow buttons. */
 .copy-button:hover {
+  border-color: var(--yellow-edge);
   background: var(--yellow-soft);
+  color: var(--yellow);
 }
 
 .copy-button.copied {
