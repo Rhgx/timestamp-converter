@@ -69,6 +69,33 @@ const naturalCases = [
   ["unix: 0", "1970-01-01T00:00:00.000Z"],
   ["-1s", "1969-12-31T23:59:59.000Z"],
   ["1704067200000ms", "2024-01-01T00:00:00.000Z"],
+  // Time before the day.
+  ["3pm tomorrow", "2026-09-08T15:00:00.000Z"],
+  ["noon on Friday", "2026-09-11T12:00:00.000Z"],
+  ["8pm next Friday", "2026-09-11T20:00:00.000Z"],
+  // Parts of the day, and times read against them.
+  ["tomorrow morning", "2026-09-08T09:00:00.000Z"],
+  ["this evening", "2026-09-07T18:00:00.000Z"],
+  ["last night", "2026-09-06T20:00:00.000Z"],
+  ["Friday afternoon", "2026-09-11T15:00:00.000Z"],
+  ["next Friday evening", "2026-09-11T18:00:00.000Z"],
+  ["tomorrow evening at 7", "2026-09-08T19:00:00.000Z"],
+  ["tomorrow evening at 7am", "2026-09-08T07:00:00.000Z"],
+  ["tomorrow morning at 7", "2026-09-08T07:00:00.000Z"],
+  ["tomorrow night at 11", "2026-09-08T23:00:00.000Z"],
+  ["tonight at 9", "2026-09-07T21:00:00.000Z"],
+  ["tonight at 1", "2026-09-08T01:00:00.000Z"],
+  ["midnight tonight", "2026-09-08T00:00:00.000Z"],
+  // Whole-day durations with a time.
+  ["in 3 days at noon", "2026-09-10T12:00:00.000Z"],
+  ["2 weeks from now at 9am", "2026-09-21T09:00:00.000Z"],
+  ["2 days ago at noon", "2026-09-05T12:00:00.000Z"],
+  // Shorthand.
+  ["5 o'clock", "2026-09-07T05:00:00.000Z"],
+  ["tomorrow at 5 o’clock", "2026-09-08T05:00:00.000Z"],
+  ["tues", "2026-09-08T00:00:00.000Z"],
+  ["weds at noon", "2026-09-09T12:00:00.000Z"],
+  ["thurs", "2026-09-10T00:00:00.000Z"],
 ] as const;
 
 for (const [input, expected] of naturalCases) {

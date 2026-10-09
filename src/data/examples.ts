@@ -1,23 +1,26 @@
 export const exampleGroups = [
   {
     title: "Natural language",
-    note: "Days start at midnight. Tonight means 20:00. Next Friday is the next Friday after today; this Friday belongs to this Monday-to-Sunday week.",
+    note: "Days start at midnight. Morning is 09:00, afternoon 15:00, evening 18:00, and night or tonight 20:00; a time after one of them reads that way, so evening at 7 is 19:00. Next Friday is the next Friday after today; this Friday belongs to this Monday-to-Sunday week.",
     examples: [
       "now",
       "tomorrow at 3pm",
-      "day after tomorrow at noon",
+      "3pm tomorrow",
+      "tomorrow morning",
+      "Friday evening at 7",
+      "tonight at 9",
       "next Friday at 18:30",
+      "day after tomorrow at noon",
       "this Monday",
       "last week",
-      "tonight",
       "end of month",
       "start of next month",
     ],
     pitfalls: [
       {
-        wrong: "tomorrow morning",
-        right: "tomorrow at 9am",
-        why: "Only tonight, noon, and midnight stand in for a clock time.",
+        wrong: "in the morning",
+        right: "tomorrow morning",
+        why: "A part of the day needs a day: this morning, Friday evening.",
       },
       {
         wrong: "this weekend",
@@ -33,7 +36,7 @@ export const exampleGroups = [
   },
   {
     title: "Durations",
-    note: "Short forms and word quantities work together. Hours are elapsed time; days, weeks, months, and years follow the calendar. Month shifts clamp to the last valid day.",
+    note: "Short forms and word quantities work together. Hours are elapsed time; days, weeks, months, and years follow the calendar and can take a time. Month shifts clamp to the last valid day.",
     examples: [
       "in 1h 30m",
       "two hours ago",
@@ -42,6 +45,7 @@ export const exampleGroups = [
       "+45m",
       "in 2 weeks",
       "in 1 month",
+      "in 3 days at noon",
     ],
     pitfalls: [
       {

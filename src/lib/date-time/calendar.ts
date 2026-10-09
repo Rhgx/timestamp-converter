@@ -205,7 +205,8 @@ export function parseClock(
   const text = input
     .toLowerCase()
     .trim()
-    .replace(/([ap])\.?m\.?$/, "$1m");
+    .replace(/([ap])\.?m\.?$/, "$1m")
+    .replace(/\s*o['’]?clock$/, "");
   if (text === "noon" || text === "midday")
     return { hours: 12, minutes: 0, seconds: 0 };
   if (text === "midnight") return { hours: 0, minutes: 0, seconds: 0 };

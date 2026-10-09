@@ -32,6 +32,20 @@ const wordNumbers: Record<string, number> = {
   twelve: 12,
 };
 
+const clockPattern = String.raw`noon|midday|midnight|\d{1,2}(?:[:.]\d{2}){0,2}\s*(?:[ap]\.?m\.?|o['’]?clock)?`;
+// "tomorrow at 3pm" and "3pm tomorrow".
+const dayThenTime = new RegExp(String.raw`^(.+?)\s+(?:at\s+)?(${clockPattern})$`);
+const timeThenDay = new RegExp(
+  String.raw`^(?:at\s+)?(${clockPattern})\s+(?:on\s+)?(.+)$`,
+);
+// Default clock hours for a named part of the day. Tonight counts as night.
+const dayParts: Record<string, number> = {
+  morning: 9,
+  afternoon: 15,
+  evening: 18,
+  night: 20,
+};
+
 function shiftMonth(date: Date, amount: number) {
   const day = date.getUTCDate();
   date.setUTCDate(1);
@@ -106,13 +120,34 @@ export function parseNatural(
   const duration = parseDuration(text, zone, reference);
   if (duration) return duration;
 
-  const timed = text.match(
-    /^(.+?)\s+(?:at\s+)?(noon|midday|midnight|\d{1,2}(?:[:.]\d{2})?(?:[:.]\d{2})?\s*(?:[ap]\.?m\.?)?)$/,
-  );
-  const dayText = timed ? timed[1] : text;
-  const clock = timed ? parseClock(timed[2]) : null;
-  if (timed && !clock) return null;
-  const today = calendarAt(reference, zone);
+  const dayFirst = text.match(dayThenTime);
+  const timeFirst = dayFirst ? null : text.match(timeThenDay);
+  const clockText = dayFirst?.[2] ?? timeFirst?.[1] ?? "";
+  let dayText = dayFirst?.[1] ?? timeFirst?.[2] ?? text;
+  const clock = clockText ? parseClock(clockText) : null;
+  if (clockText && !clock) return null;
+
+  let part: string | undefined;
+  const partMatch = dayText.match(/^(.+)\s+(morning|afternoon|evening|night)$/);
+  if (dayText === "tonight") [dayText, part] = ["today", "night"];
+  else if (partMatch) {
+    part = partMatch[2];
+    dayText =
+      partMatch[1] === "this"
+        ? "today"
+        : partMatch[1] === "last" && part === "night"
+          ? "yesterday"
+          : partMatch[1];
+  }
+
+  // "in 3 days at noon": a whole-day duration picks the day, the clock the time.
+  const shifted =
+    /^(?:in\s+)?\S+\s+(?:days?|weeks?|months?|years?)(?:\s+(?:from now|later|ago))?$/.test(
+      dayText,
+    )
+      ? parseDuration(dayText, zone, reference)
+      : null;
+  const today = calendarAt(shifted ?? reference, zone);
   const wall = new Date(Date.UTC(today.year, today.month, today.day));
   const dayOffsets: Record<string, number> = {
     today: 0,
@@ -120,15 +155,16 @@ export function parseNatural(
     yesterday: -1,
     "day after tomorrow": 2,
     "day before yesterday": -2,
-    tonight: 0,
   };
   let endOfPeriod = false;
-  if (Object.hasOwn(dayOffsets, dayText)) {
+  if (shifted) {
+    // The duration already chose the day.
+  } else if (Object.hasOwn(dayOffsets, dayText)) {
     wall.setUTCDate(wall.getUTCDate() + dayOffsets[dayText]);
   } else {
     const period = dayText.match(/^(next|last)\s+(week|month|year)$/);
     const weekday = dayText.match(
-      /^(?:(next|last|this)\s+)?(sun(?:day)?|mon(?:day)?|tue(?:sday)?|wed(?:nesday)?|thu(?:rsday)?|fri(?:day)?|sat(?:urday)?)$/,
+      /^(?:(next|last|this)\s+)?(sun(?:day)?|mon(?:day)?|tue(?:s|sday)?|wed(?:s|nesday)?|thu(?:rs?|rsday)?|fri(?:day)?|sat(?:urday)?)$/,
     );
     const boundary = dayText.match(
       /^(start|end) of (?:(the|this|next|last) )?(day|week|month|year)$/,
@@ -139,7 +175,9 @@ export function parseNatural(
         wall.setUTCDate(wall.getUTCDate() + 7 * direction);
       else shiftMonth(wall, direction * (period[2] === "year" ? 12 : 1));
     } else if (weekday) {
-      const target = weekdays.findIndex((day) => day.startsWith(weekday[2]));
+      const target = weekdays.findIndex((day) =>
+        day.startsWith(weekday[2].slice(0, 3)),
+      );
       const current = wall.getUTCDay();
       let delta = (target - current + 7) % 7;
       if (weekday[1] === "next" && delta === 0) delta = 7;
@@ -177,13 +215,26 @@ export function parseNatural(
       }
     } else return null;
   }
+  // "evening at 7" means 19:00. An explicit am/pm or a named time wins.
+  const afterNoon =
+    clock &&
+    part &&
+    part !== "morning" &&
+    clock.hours >= (part === "night" ? 5 : 1) &&
+    clock.hours < 12 &&
+    !/[ap]\.?m|noon|midday|midnight/.test(clockText);
+  // "tonight at 1" and "midnight tonight" mean the early hours after tonight.
+  if (clock && part === "night" && clock.hours < 5)
+    wall.setUTCDate(wall.getUTCDate() + 1);
   const parts: CalendarDate = {
     ...calendarAt(wall, { kind: "offset", minutes: 0 }),
-    ...(clock ?? {
-      hours: dayText === "tonight" ? 20 : endOfPeriod ? 23 : 0,
-      minutes: endOfPeriod ? 59 : 0,
-      seconds: endOfPeriod ? 59 : 0,
-    }),
+    ...(clock
+      ? { ...clock, hours: clock.hours + (afterNoon ? 12 : 0) }
+      : {
+          hours: part ? dayParts[part] : endOfPeriod ? 23 : 0,
+          minutes: endOfPeriod ? 59 : 0,
+          seconds: endOfPeriod ? 59 : 0,
+        }),
   };
   return dateFromCalendar(parts, zone);
 }

@@ -104,6 +104,10 @@ test("rejects partially matched language, invalid clocks, and malformed offsets"
     "2026-02-30T12:00Z",
     "noon UTC+14:30",
     "2 PM Mars/Olympus",
+    "in the morning",
+    "morning",
+    "last morning",
+    "in 2 hours at 3pm",
     "infinity",
     "a".repeat(501),
   ]) {
