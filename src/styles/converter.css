@@ -98,8 +98,7 @@ code {
 }
 
 .chip:active,
-.example-grid button:active,
-.pitfall-right:active {
+.example-grid button:active {
   transform: translateY(0) scale(0.985);
 }
 

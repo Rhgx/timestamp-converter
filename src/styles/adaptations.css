@@ -62,8 +62,7 @@
     transform: scale(1);
   }
   .chip:hover,
-  .example-grid button:hover,
-  .pitfall-right:hover {
+  .example-grid button:hover {
     transform: translateY(-1px);
   }
   /* Rows land one after another, the way the digits inside them settle. */
@@ -87,8 +86,7 @@
   .convert-button:active,
   .copy-button:active,
   .chip:active,
-  .example-grid button:active,
-  .pitfall-right:active {
+  .example-grid button:active {
     transform: none;
   }
 
@@ -122,9 +120,6 @@
   }
   .dialog-body {
     padding: 16px 18px 18px;
-  }
-  .dialog-footer {
-    padding: 10px 18px;
   }
 
 }

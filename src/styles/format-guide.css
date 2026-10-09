@@ -114,135 +114,39 @@
   filter: invert(60%);
 }
 
-/* Laid out like an assembly guide: a numbered step, then the plates showing
-   what works and what does not. */
+/* One section per input family: a heading, its rules, the examples, and its
+   common mistakes folded away underneath. */
 .format-groups section {
-  padding-top: 30px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.format-groups section:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
 }
 
 .format-groups h3 {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0 0 6px;
+  margin: 0 0 4px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--yellow);
-}
-
-.step-number {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 22px;
-  height: 22px;
-  border: 1px solid var(--yellow-edge);
-  border-radius: 50%;
-  color: var(--yellow);
-  font-size: 12px;
-}
-
-.format-groups h3::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: var(--border);
+  color: var(--text);
 }
 
 .group-note {
-  margin: 0 0 14px;
-  padding-left: 32px;
+  margin: 0 0 12px;
   color: var(--muted);
   font-size: 12px;
-}
-
-.plate-caption {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0 0 8px;
-  font-size: 12px;
-}
-
-.example-grid + .plate-caption {
-  margin-top: 16px;
-}
-
-.plate-caption.ok {
-  color: var(--green);
-}
-
-.plate-caption.bad {
-  color: var(--error-caption);
-}
-
-.pitfalls {
-  display: grid;
-  gap: 10px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.pitfall-pair {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-}
-
-.pitfall-wrong {
-  padding: 6px 10px;
-  border: 1px dashed var(--error-border-muted);
-  border-radius: var(--radius-sm);
-  color: var(--text-faint);
-  font-size: 12px;
-  text-decoration: line-through;
-  text-decoration-color: var(--error-accent);
-  overflow-wrap: anywhere;
-}
-
-.pitfall-arrow {
-  flex-shrink: 0;
-  color: var(--text-faint);
-}
-
-.pitfall-right {
-  padding: 6px 10px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface-2);
-  color: var(--text-example);
-  font-size: 12px;
-  text-align: left;
-  overflow-wrap: anywhere;
-}
-
-.pitfall-right:hover {
-  border-color: var(--yellow-edge);
-  background: var(--yellow-soft);
-  color: var(--yellow);
-}
-
-.pitfall-why {
-  margin: 4px 0 0;
-  padding-left: 2px;
-  color: var(--text-faint);
-  font-size: 11px;
-}
-
-.no-matches {
-  padding-top: 24px;
 }
 
 .example-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 7px;
+  gap: 6px;
 }
 
 .example-grid button {
-  padding: 10px 12px;
+  padding: 7px 10px;
   text-align: left;
   background: var(--surface-2);
   color: var(--text-example);
@@ -258,26 +162,127 @@
   color: var(--yellow);
 }
 
-.dialog-footer {
-  display: flex;
+.pitfalls {
+  margin-top: 12px;
+  font-size: 12px;
+}
+
+/* A disclosure row: the chevron points right when closed and down when open. */
+.pitfalls summary {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  gap: 6px;
+  margin-left: -6px;
+  padding: 4px 8px 4px 4px;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+}
+
+.pitfalls summary::-webkit-details-marker {
+  display: none;
+}
+
+.pitfalls summary:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.disclosure-chevron {
   flex-shrink: 0;
-  padding: 11px 22px;
-  border-top: 1px solid var(--border);
+  color: var(--text-faint);
+}
+
+.pitfalls[open] .disclosure-chevron {
+  transform: rotate(90deg);
+}
+
+.pitfall-count {
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Browsers without ::details-content or interpolate-size open instantly. */
+@media (prefers-reduced-motion: no-preference) {
+  .pitfalls {
+    interpolate-size: allow-keywords;
+  }
+  .pitfalls::details-content {
+    height: 0;
+    opacity: 0;
+    overflow: clip;
+    transition:
+      height 280ms var(--ease-smooth),
+      opacity 200ms var(--ease-out),
+      content-visibility 280ms allow-discrete;
+  }
+  .pitfalls[open]::details-content {
+    height: auto;
+    opacity: 1;
+  }
+  .disclosure-chevron {
+    transition: transform 240ms var(--ease-smooth);
+  }
+}
+
+.pitfalls summary:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.pitfalls ul {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 8px 0 2px 18px;
+  list-style: none;
+}
+
+.pitfalls li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 8px;
+}
+
+.pitfall-wrong {
+  color: var(--text-faint);
+  text-decoration-color: var(--error-accent);
+  overflow-wrap: anywhere;
+}
+
+.pitfall-arrow {
+  flex-shrink: 0;
+  color: var(--text-faint);
+}
+
+.pitfall-right {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-example);
+  text-align: left;
+  text-decoration: underline dotted var(--yellow-edge);
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+}
+
+.pitfall-right:hover {
+  color: var(--yellow);
+}
+
+.pitfall-why {
+  flex-basis: 100%;
+  margin-top: 2px;
   color: var(--text-faint);
   font-size: 11px;
 }
 
-kbd {
-  padding: 1px 6px;
-  border: 1px solid var(--border-strong);
-  border-radius: 4px;
-  background: var(--surface-2);
-  font: inherit;
-  font-size: 10px;
-  color: var(--muted);
+.no-matches {
+  padding-top: 24px;
 }
 
 body:has(dialog[open]) {
